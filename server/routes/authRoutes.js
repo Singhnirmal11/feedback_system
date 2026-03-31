@@ -7,7 +7,6 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const SECRET_KEY = process.env.JWT_SECRET;
 
-
 router.post("/register", async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -31,8 +30,6 @@ router.post("/register", async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 });
-
-
 
 router.post("/login", (req, res) => {
   const { email, password } = req.body;
@@ -64,7 +61,8 @@ router.post("/login", (req, res) => {
 
     res.status(200).json({
       message: "Login successful",
-      token: token
+      token: token,
+      role: user.role
     });
   });
 });

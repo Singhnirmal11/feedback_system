@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
 
 function Login({ setIsLoggedIn, setShowLogin }) {
   const [email, setEmail] = useState("");
@@ -9,26 +10,27 @@ function Login({ setIsLoggedIn, setShowLogin }) {
       const response = await fetch("http://localhost:5001/login", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email: email,
-          password: password
-        })
+          password: password,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Login successful..");
+        toast.success("Login successful");
         localStorage.setItem("token", data.token);
+        localStorage.setItem("role", data.role);
         setIsLoggedIn(true);
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
-
     } catch (error) {
       console.error("Error:", error);
+      toast.error("Something went wrong");
     }
   };
 

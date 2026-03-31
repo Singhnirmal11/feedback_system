@@ -5,10 +5,19 @@ const verifyToken = require("../middleware/verifyToken");
 const verifyAdmin = require("../middleware/verifyAdmin");
 
 router.get("/faculties", verifyToken, (req, res) => {
-  const query = "SELECT * FROM faculties";
+  const query = `
+    SELECT 
+      f.*,
+      ROUND(AVG(fb.rating), 1) AS average_rating,
+      COUNT(fb.id) AS total_reviews
+    FROM faculties f
+    LEFT JOIN feedback fb ON f.id = fb.faculty_id
+    GROUP BY f.id
+  `;
 
   db.query(query, (err, results) => {
     if (err) {
+      console.log(err);
       return res.status(500).json({ message: "Database error" });
     }
 
@@ -27,6 +36,7 @@ router.post("/faculties", verifyToken, verifyAdmin, (req, res) => {
 
   db.query(query, [name, department], (err, result) => {
     if (err) {
+      console.log(err);
       return res.status(500).json({ message: "Database error" });
     }
 
@@ -66,6 +76,60 @@ router.get("/faculties/:id/feedback", verifyToken, (req, res) => {
       totalFeedback: totalRatings,
       averageFeedback: averageRating.toFixed(2),
       feedback: results,
+    });
+  });
+});
+
+router.get("/admin/stats", verifyToken, verifyAdmin, (req, res) => {
+  const statsQuery = `
+    SELECT 
+      (SELECT COUNT(*) FROM faculties) AS total_faculties,
+      (SELECT COUNT(*) FROM feedback) AS total_feedback,
+      (SELECT ROUND(AVG(rating),1) FROM feedback) AS avg_rating
+  `;
+
+  db.query(statsQuery, (err, statsResult) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    const topRatedQuery = `
+      SELECT f.name, ROUND(AVG(fb.rating),1) AS avg_rating
+      FROM faculties f
+      JOIN feedback fb ON f.id = fb.faculty_id
+      GROUP BY f.id
+      ORDER BY avg_rating DESC
+      LIMIT 1
+    `;
+
+    db.query(topRatedQuery, (err, topResult) => {
+      if (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Database error" });
+      }
+
+      const mostReviewedQuery = `
+        SELECT f.name, COUNT(fb.id) AS total_reviews
+        FROM faculties f
+        JOIN feedback fb ON f.id = fb.faculty_id
+        GROUP BY f.id
+        ORDER BY total_reviews DESC
+        LIMIT 1
+      `;
+
+      db.query(mostReviewedQuery, (err, reviewResult) => {
+        if (err) {
+          console.log(err);
+          return res.status(500).json({ message: "Database error" });
+        }
+
+        res.json({
+          stats: statsResult[0],
+          topRated: topResult[0] || null,
+          mostReviewed: reviewResult[0] || null,
+        });
+      });
     });
   });
 });

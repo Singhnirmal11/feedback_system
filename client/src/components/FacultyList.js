@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 function FacultyList() {
   const [selectedFaculty, setSelectedFaculty] = useState(null);
@@ -11,6 +12,10 @@ function FacultyList() {
   const [searchTerm, setSearchTerm] = useState("");
   const [designationFilter, setDesignationFilter] = useState("All");
   const [editingId, setEditingId] = useState(null);
+  const [sortOption, setSortOption] = useState("default");
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const facultiesPerPage = 10;
 
   useEffect(() => {
     fetchFaculties();
@@ -31,6 +36,7 @@ function FacultyList() {
       setFaculties(data);
     } catch (error) {
       console.error(error);
+      toast.error("Error fetching faculties");
     }
   };
 
@@ -60,16 +66,22 @@ function FacultyList() {
       const data = await response.json();
 
       if (response.ok) {
-        alert(editingId ? "Updated successfully" : "Feedback submitted");
+        toast.success(
+          editingId
+            ? "Feedback updated successfully"
+            : "Feedback submitted successfully"
+        );
         setRating("");
         setComment("");
         setEditingId(null);
         fetchFeedback(selectedFaculty.id);
+        fetchFaculties();
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
     } catch (error) {
       console.error(error);
+      toast.error("Something went wrong");
     }
   };
 
@@ -95,11 +107,11 @@ function FacultyList() {
       if (response.ok) {
         setFacultyFeedback(data);
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
     } catch (error) {
       console.error(error);
-      alert("Error fetching feedback");
+      toast.error("Error fetching feedback");
     } finally {
       setLoading(false);
     }
@@ -125,13 +137,15 @@ function FacultyList() {
       const data = await response.json();
 
       if (response.ok) {
-        alert("Deleted successfully");
+        toast.success("Feedback deleted successfully");
         fetchFeedback(selectedFaculty.id);
+        fetchFaculties();
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
     } catch (error) {
       console.error(error);
+      toast.error("Something went wrong");
     }
   };
 
@@ -156,6 +170,35 @@ function FacultyList() {
     return matchesSearch && matchesDesignation;
   });
 
+  const sortedFaculties = [...filteredFaculties].sort((a, b) => {
+    if (sortOption === "name-asc") {
+      return a.name.localeCompare(b.name);
+    }
+
+    if (sortOption === "rating-high") {
+      return (b.average_rating || 0) - (a.average_rating || 0);
+    }
+
+    if (sortOption === "rating-low") {
+      return (a.average_rating || 0) - (b.average_rating || 0);
+    }
+
+    if (sortOption === "reviews-high") {
+      return (b.total_reviews || 0) - (a.total_reviews || 0);
+    }
+
+    return 0;
+  });
+
+  const totalPages = Math.ceil(sortedFaculties.length / facultiesPerPage);
+  const startIndex = (currentPage - 1) * facultiesPerPage;
+  const endIndex = startIndex + facultiesPerPage;
+  const currentFaculties = sortedFaculties.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, designationFilter, sortOption]);
+
   return (
     <div>
       <h2>Faculty List</h2>
@@ -176,27 +219,38 @@ function FacultyList() {
         >
           <option value="All">All Designations</option>
           <option value="Professor">Professor</option>
-          <option value="Associate Professor">
-            Associate Professor
-          </option>
-          <option value="Assistant Professor">
-            Assistant Professor
-          </option>
+          <option value="Associate Professor">Associate Professor</option>
+          <option value="Assistant Professor">Assistant Professor</option>
+        </select>
+
+        <select
+          value={sortOption}
+          onChange={(e) => setSortOption(e.target.value)}
+          className="filter-select"
+        >
+          <option value="default">Sort By</option>
+          <option value="name-asc">Name A-Z</option>
+          <option value="rating-high">Highest Rated</option>
+          <option value="rating-low">Lowest Rated</option>
+          <option value="reviews-high">Most Reviewed</option>
         </select>
       </div>
 
       <p className="results-count">
-        <b>Total Faculties Found:</b> {filteredFaculties.length}
+        <b>Total Faculties Found:</b> {sortedFaculties.length}
       </p>
 
       <div className="faculty-grid">
-        {filteredFaculties.map((faculty) => (
+        {currentFaculties.map((faculty) => (
           <div className="faculty-card" key={faculty.id}>
             <h3>{faculty.name}</h3>
 
-            <div className="designation-badge">
-              {faculty.designation}
-            </div>
+            <div className="designation-badge">{faculty.designation}</div>
+
+            <p className="rating-summary">
+              {faculty.average_rating || 0} ⭐ ({faculty.total_reviews || 0}{" "}
+              reviews)
+            </p>
 
             <p>
               <b>Department:</b> {faculty.department}
@@ -212,6 +266,9 @@ function FacultyList() {
               onClick={() => {
                 setSelectedFaculty(faculty);
                 setFacultyFeedback(null);
+                setRating("");
+                setComment("");
+                setEditingId(null);
               }}
             >
               Give Feedback
@@ -220,6 +277,9 @@ function FacultyList() {
             <button
               onClick={() => {
                 setSelectedFaculty(faculty);
+                setRating("");
+                setComment("");
+                setEditingId(null);
                 fetchFeedback(faculty.id);
               }}
             >
@@ -260,12 +320,10 @@ function FacultyList() {
               <div className="feedback-display">
                 <h3>{facultyFeedback.faculty.name}</h3>
                 <p>
-                  <b>Average Rating:</b>{" "}
-                  {facultyFeedback.averageFeedback}
+                  <b>Average Rating:</b> {facultyFeedback.averageFeedback}
                 </p>
                 <p>
-                  <b>Total Feedback:</b>{" "}
-                  {facultyFeedback.totalFeedback}
+                  <b>Total Feedback:</b> {facultyFeedback.totalFeedback}
                 </p>
 
                 {facultyFeedback.feedback.map((item) => (
@@ -277,9 +335,7 @@ function FacultyList() {
                       <b>Comment:</b> {item.comment}
                     </p>
 
-                    <button onClick={() => handleEdit(item)}>
-                      Edit
-                    </button>
+                    <button onClick={() => handleEdit(item)}>Edit</button>
                     <button onClick={() => handleDelete(item.id)}>
                       Delete
                     </button>
@@ -289,6 +345,26 @@ function FacultyList() {
             )}
           </div>
         ))}
+      </div>
+
+      <div className="pagination">
+        <button
+          onClick={() => setCurrentPage(currentPage - 1)}
+          disabled={currentPage === 1}
+        >
+          Prev
+        </button>
+
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+
+        <button
+          onClick={() => setCurrentPage(currentPage + 1)}
+          disabled={currentPage === totalPages}
+        >
+          Next
+        </button>
       </div>
     </div>
   );
