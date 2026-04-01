@@ -285,3 +285,7 @@ button:hover {
   margin-bottom: 20px;
   text-align: center;
 }
+
+.feedback-item p {
+  margin: 6px 0;
+}

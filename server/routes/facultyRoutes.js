@@ -44,6 +44,7 @@ router.post("/faculties", verifyToken, verifyAdmin, (req, res) => {
   });
 });
 
+
 router.get("/faculties/:id/feedback", verifyToken, (req, res) => {
   const faculty_id = req.params.id;
 
@@ -68,6 +69,70 @@ router.get("/faculties/:id/feedback", verifyToken, (req, res) => {
     const averageRating =
       results.reduce((sum, item) => sum + item.rating, 0) / totalRatings;
 
+    const feedbackWithSentiment = results.map((item) => {
+      const text = (item.comment || "").toLowerCase().trim();
+
+      let sentiment = "Neutral";
+
+      const positiveWords = [
+        "good",
+        "excellent",
+        "amazing",
+        "great",
+        "helpful",
+        "nice",
+        "best",
+        "clear",
+        "awesome",
+        "friendly",
+        "understandable",
+        "supportive",
+        "knowledgeable",
+        "well",
+        "super",
+        "fantastic"
+      ];
+
+      const negativeWords = [
+        "bad",
+        "poor",
+        "worst",
+        "boring",
+        "confusing",
+        "rude",
+        "difficult",
+        "slow",
+        "unclear",
+        "terrible",
+        "late",
+        "strict",
+        "awful"
+      ];
+
+      const hasPositive = positiveWords.some((word) => text.includes(word));
+      const hasNegative = negativeWords.some((word) => text.includes(word));
+
+      if (hasPositive && !hasNegative) {
+        sentiment = "Positive";
+      } else if (hasNegative && !hasPositive) {
+        sentiment = "Negative";
+      } else {
+        if (item.rating >= 4) {
+          sentiment = "Positive";
+        } else if (item.rating <= 2) {
+          sentiment = "Negative";
+        } else {
+          sentiment = "Neutral";
+        }
+      }
+
+      return {
+        ...item,
+        sentiment,
+      };
+    });
+
+    console.log("Feedback with Sentiment:", feedbackWithSentiment);
     res.json({
       faculty: {
         name: results[0].name,
@@ -75,7 +140,7 @@ router.get("/faculties/:id/feedback", verifyToken, (req, res) => {
       },
       totalFeedback: totalRatings,
       averageFeedback: averageRating.toFixed(2),
-      feedback: results,
+      feedback: feedbackWithSentiment,
     });
   });
 });

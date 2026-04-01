@@ -332,7 +332,15 @@ function FacultyList() {
                       <b>Rating:</b> {item.rating} ⭐
                     </p>
                     <p>
-                      <b>Comment:</b> {item.comment}
+                      <b> Comment:</b> {item.comment}
+                    </p>
+                    <p>
+                      <b>Sentiment:</b>{" "}
+                      {item.sentiment === "Positive"
+                        ? "Positive 😊"
+                        : item.sentiment === "Negative"
+                        ? "Negative 😕"
+                        : "Neutral 😐"}
                     </p>
 
                     <button onClick={() => handleEdit(item)}>Edit</button>
