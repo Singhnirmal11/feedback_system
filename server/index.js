@@ -1,4 +1,6 @@
-require("dotenv").config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 const verifyToken = require("./middleware/verifyToken");
 const verifyAdmin = require("./middleware/verifyAdmin");
 const authRoutes = require("./routes/authRoutes");
@@ -6,7 +8,12 @@ const facultyRoutes = require("./routes/facultyRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
 const jwt = require("jsonwebtoken");
 const express = require("express");
-const cors = require("cors");
+app.use(
+  cors({
+    origin: ["http://localhost:3000"],
+    credentials: true,
+  })
+);
 const db = require("./config/db");
 const bcrypt = require("bcrypt");
 const SECRET_KEY = process.env.JWT_SECRET;
@@ -110,7 +117,9 @@ app.delete("/feedback/:id", verifyToken, (req, res) => {
 
 // for checking the server status
 
-app.listen(5001, () => {
-  console.log("Server running on port 5001");
+const PORT = process.env.PORT || 5001;
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
