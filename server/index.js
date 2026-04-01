@@ -1,26 +1,31 @@
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config();
 }
+
+const express = require("express");
+const cors = require("cors");
+const db = require("./config/db");
 const verifyToken = require("./middleware/verifyToken");
 const verifyAdmin = require("./middleware/verifyAdmin");
 const authRoutes = require("./routes/authRoutes");
 const facultyRoutes = require("./routes/facultyRoutes");
 const feedbackRoutes = require("./routes/feedbackRoutes");
-const jwt = require("jsonwebtoken");
-const express = require("express");
+
+const app = express();
+const PORT = process.env.PORT || 5001;
+
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: [
+      "http://localhost:3000",
+      "https://your-frontend-url.vercel.app"
+    ],
     credentials: true,
   })
 );
-const db = require("./config/db");
-const bcrypt = require("bcrypt");
-const SECRET_KEY = process.env.JWT_SECRET;
-const app = express();
 
-app.use(cors());
 app.use(express.json());
+
 app.use("/", authRoutes);
 app.use("/", facultyRoutes);
 app.use("/", feedbackRoutes);
@@ -29,18 +34,16 @@ app.get("/", (req, res) => {
   res.send("Server is running");
 });
 
-app.get("/admin",verifyToken,verifyAdmin,(req,res) =>{
+app.get("/admin", verifyToken, verifyAdmin, (req, res) => {
   res.json({
-    message:"Welcome Admin"
+    message: "Welcome Admin",
   });
 });
 
-
-
-app.get("/dashboard",verifyToken,(req,res)=>{
+app.get("/dashboard", verifyToken, (req, res) => {
   res.json({
-    message:"Welcome to Dashboard",
-    user:req.user
+    message: "Welcome to Dashboard",
+    user: req.user,
   });
 });
 
@@ -75,7 +78,7 @@ app.put("/feedback/:id", verifyToken, (req, res) => {
       WHERE id=?
     `;
 
-    db.query(updateQuery, [rating, comment, feedbackId], (err, result) => {
+    db.query(updateQuery, [rating, comment, feedbackId], (err) => {
       if (err) {
         console.log(err);
         return res.status(500).json({ message: "Database error" });
@@ -104,7 +107,7 @@ app.delete("/feedback/:id", verifyToken, (req, res) => {
 
     const deleteQuery = "DELETE FROM feedback WHERE id=?";
 
-    db.query(deleteQuery, [feedbackId], (err, result) => {
+    db.query(deleteQuery, [feedbackId], (err) => {
       if (err) {
         console.log(err);
         return res.status(500).json({ message: "Database error" });
@@ -115,11 +118,6 @@ app.delete("/feedback/:id", verifyToken, (req, res) => {
   });
 });
 
-// for checking the server status
-
-const PORT = process.env.PORT || 5001;
-
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
-
