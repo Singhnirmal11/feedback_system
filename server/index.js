@@ -16,7 +16,7 @@ const PORT = process.env.PORT || 5001;
 
 const allowedOrigins = [
   "http://localhost:3000",
-  "https://feedback-system-nine-eta.vercel.app"
+  "https://feedback-system-sscse.vercel.app"
 ];
 
 app.use(
