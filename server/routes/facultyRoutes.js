@@ -221,4 +221,28 @@ router.get("/admin/top-rated", verifyToken, verifyAdmin, (req, res) => {
   });
 });
 
+router.get("/admin/leaderboard", verifyToken, verifyAdmin, (req, res) => {
+  const query = `
+    SELECT 
+      f.name,
+      f.department,
+      ROUND(AVG(fb.rating), 1) AS avg_rating,
+      COUNT(fb.id) AS total_reviews
+    FROM faculties f
+    JOIN feedback fb ON f.id = fb.faculty_id
+    GROUP BY f.id
+    ORDER BY avg_rating DESC, total_reviews DESC
+    LIMIT 10
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.log(err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    res.json(results);
+  });
+});
+
 module.exports = router;

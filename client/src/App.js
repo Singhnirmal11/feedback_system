@@ -10,6 +10,7 @@ import "react-toastify/dist/ReactToastify.css";
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogin, setShowLogin] = useState(true);
+  const [theme, setTheme] = useState(localStorage.getItem("theme") || "light");
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -18,22 +19,36 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    document.body.className = theme;
+    localStorage.setItem("theme", theme);
+  }, [theme]);
+
   return (
-    <div className="app-container">
-      <h1 className="main-heading">University Faculty Feedback System</h1>
+    <div className={`app-container ${theme}`}>
+      <div className="top-bar">
+        <h1 className="main-heading">SSCSE Feedback System</h1>
+
+        <button
+          className="theme-toggle-btn"
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+        >
+          {theme === "light" ? "🌙 Dark Mode" : "☀ Light Mode"}
+        </button>
+      </div>
 
       {!isLoggedIn ? (
         showLogin ? (
-          <div className="card">
+          <div className={`card small-card ${theme}`}>
             <Login setIsLoggedIn={setIsLoggedIn} setShowLogin={setShowLogin} />
           </div>
         ) : (
-          <div className="card">
+          <div className={`card small-card ${theme}`}>
             <Register setShowLogin={setShowLogin} />
           </div>
         )
       ) : (
-        <div className="card">
+        <div className={`card large-card ${theme}`}>
           <button
             className="logout-btn"
             onClick={() => {
