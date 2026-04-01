@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "https://sscse-feedback-backend.onrender.com";
+
 
 function Login({ setIsLoggedIn, setShowLogin }) {
   const [email, setEmail] = useState("");
