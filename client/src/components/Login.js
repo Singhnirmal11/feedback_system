@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function Login({ setIsLoggedIn, setShowLogin }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://localhost:5001/login", {
+      const response = await fetch(`${API_URL}/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

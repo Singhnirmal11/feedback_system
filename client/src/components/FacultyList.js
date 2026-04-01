@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function FacultyList() {
   const [selectedFaculty, setSelectedFaculty] = useState(null);
   const [rating, setRating] = useState("");
@@ -25,7 +27,7 @@ function FacultyList() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5001/faculties", {
+      const response = await fetch(`${API_URL}/faculties`, {
         method: "GET",
         headers: {
           Authorization: "Bearer " + token,
@@ -45,8 +47,8 @@ function FacultyList() {
       const token = localStorage.getItem("token");
 
       const url = editingId
-        ? `http://localhost:5001/feedback/${editingId}`
-        : "http://localhost:5001/feedback";
+        ? `${API_URL}/feedback/${editingId}`
+        : `${API_URL}/feedback`;
 
       const method = editingId ? "PUT" : "POST";
 
@@ -92,15 +94,12 @@ function FacultyList() {
 
       const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `http://localhost:5001/faculties/${facultyId}/feedback`,
-        {
-          method: "GET",
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/faculties/${facultyId}/feedback`, {
+        method: "GET",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
       const data = await response.json();
 
@@ -124,15 +123,12 @@ function FacultyList() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch(
-        `http://localhost:5001/feedback/${id}`,
-        {
-          method: "DELETE",
-          headers: {
-            Authorization: "Bearer " + token,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/feedback/${id}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: "Bearer " + token,
+        },
+      });
 
       const data = await response.json();
 
@@ -248,8 +244,7 @@ function FacultyList() {
             <div className="designation-badge">{faculty.designation}</div>
 
             <p className="rating-summary">
-              {faculty.average_rating || 0} ⭐ ({faculty.total_reviews || 0}{" "}
-              reviews)
+              {faculty.average_rating || 0} ⭐ ({faculty.total_reviews || 0} reviews)
             </p>
 
             <p>
@@ -332,7 +327,7 @@ function FacultyList() {
                       <b>Rating:</b> {item.rating} ⭐
                     </p>
                     <p>
-                      <b> Comment:</b> {item.comment}
+                      <b>Comment:</b> {item.comment}
                     </p>
                     <p>
                       <b>Sentiment:</b>{" "}

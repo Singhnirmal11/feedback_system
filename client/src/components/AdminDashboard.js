@@ -10,6 +10,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 function AdminDashboard() {
   const [data, setData] = useState(null);
   const [topRatedData, setTopRatedData] = useState([]);
@@ -25,7 +27,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5001/admin/stats", {
+      const response = await fetch(`${API_URL}/admin/stats`, {
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -47,7 +49,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5001/admin/top-rated", {
+      const response = await fetch(`${API_URL}/admin/top-rated`, {
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -69,7 +71,7 @@ function AdminDashboard() {
     try {
       const token = localStorage.getItem("token");
 
-      const response = await fetch("http://localhost:5001/admin/leaderboard", {
+      const response = await fetch(`${API_URL}/admin/leaderboard`, {
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -90,10 +92,9 @@ function AdminDashboard() {
   if (!data) return <p>Loading...</p>;
 
   return (
-    <div>
-      <h2 style={{ marginBottom: "20px" }}>📊 Admin Dashboard</h2>
+    <div className="admin-dashboard-wrapper">
+      <h2 className="dashboard-heading">📊 Admin Dashboard</h2>
 
-      {/* Stats Cards */}
       <div className="admin-cards">
         <div className="admin-card">
           <h3>Total Faculties</h3>
@@ -111,7 +112,6 @@ function AdminDashboard() {
         </div>
       </div>
 
-      {/* Insights */}
       <div className="admin-insights">
         <h3>Top Rated Faculty</h3>
         <p>
@@ -125,7 +125,6 @@ function AdminDashboard() {
         </p>
       </div>
 
-      {/* Chart */}
       <div className="chart-container">
         <h3>Top 5 Faculty by Average Rating</h3>
 
@@ -146,18 +145,18 @@ function AdminDashboard() {
         </ResponsiveContainer>
       </div>
 
-      {/* Leaderboard */}
       <div className="leaderboard-container">
         <h3>🏆 Faculty Leaderboard</h3>
 
-        {/* Top 3 Cards */}
         <div className="top-three-container">
           {leaderboard.slice(0, 3).map((faculty, index) => (
             <div className={`top-rank-card rank-${index + 1}`} key={index}>
               <h4>
                 {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"} Rank #{index + 1}
               </h4>
-              <p><strong>{faculty.name}</strong></p>
+              <p>
+                <strong>{faculty.name}</strong>
+              </p>
               <p>{faculty.department}</p>
               <p>{faculty.avg_rating} ⭐</p>
               <p>{faculty.total_reviews} reviews</p>
@@ -165,7 +164,6 @@ function AdminDashboard() {
           ))}
         </div>
 
-        {/* Full Table */}
         <table className="leaderboard-table">
           <thead>
             <tr>

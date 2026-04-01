@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { toast } from "react-toastify";
+
+const API_URL = process.env.REACT_APP_API_URL;
 
 function Register({ setShowLogin }) {
   const [name, setName] = useState("");
@@ -7,29 +10,29 @@ function Register({ setShowLogin }) {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch("http://localhost:5001/register", {
+      const response = await fetch(`${API_URL}/register`, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           name: name,
           email: email,
-          password: password
-        })
+          password: password,
+        }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        alert("Registration successful..");
+        toast.success("Registration successful");
         setShowLogin(true);
       } else {
-        alert(data.message);
+        toast.error(data.message);
       }
-
     } catch (error) {
       console.error(error);
+      toast.error("Something went wrong");
     }
   };
 
