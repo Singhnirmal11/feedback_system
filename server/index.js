@@ -18,7 +18,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:3000",
-      "https://your-frontend-url.vercel.app"
+      "https//:feedback-system-nine-eta.vercel.app"
     ],
     credentials: true,
   })
