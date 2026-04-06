@@ -10,12 +10,12 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const API_URL = process.env.REACT_APP_API_URL;
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
 
 function AdminDashboard() {
   const [data, setData] = useState(null);
   const [topRatedData, setTopRatedData] = useState([]);
-  const [leaderboard, setLeaderboard] = useState([]);
+  const [leaderboardData, setLeaderboardData] = useState([]);
 
   useEffect(() => {
     fetchStats();
@@ -28,6 +28,7 @@ function AdminDashboard() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(`${API_URL}/admin/stats`, {
+        method: "GET",
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -38,9 +39,10 @@ function AdminDashboard() {
       if (response.ok) {
         setData(result);
       } else {
-        toast.error(result.message);
+        toast.error(result.message || "Failed to fetch stats");
       }
     } catch (error) {
+      console.error("Stats Error:", error);
       toast.error("Error fetching stats");
     }
   };
@@ -50,6 +52,7 @@ function AdminDashboard() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(`${API_URL}/admin/top-rated`, {
+        method: "GET",
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -60,9 +63,10 @@ function AdminDashboard() {
       if (response.ok) {
         setTopRatedData(result);
       } else {
-        toast.error(result.message);
+        toast.error(result.message || "Failed to fetch chart data");
       }
     } catch (error) {
+      console.error("Top Rated Error:", error);
       toast.error("Error fetching chart data");
     }
   };
@@ -72,6 +76,7 @@ function AdminDashboard() {
       const token = localStorage.getItem("token");
 
       const response = await fetch(`${API_URL}/admin/leaderboard`, {
+        method: "GET",
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -80,11 +85,12 @@ function AdminDashboard() {
       const result = await response.json();
 
       if (response.ok) {
-        setLeaderboard(result);
+        setLeaderboardData(result);
       } else {
-        toast.error(result.message);
+        toast.error(result.message || "Failed to fetch leaderboard");
       }
     } catch (error) {
+      console.error("Leaderboard Error:", error);
       toast.error("Error fetching leaderboard");
     }
   };
@@ -92,8 +98,8 @@ function AdminDashboard() {
   if (!data) return <p>Loading...</p>;
 
   return (
-    <div className="admin-dashboard-wrapper">
-      <h2 className="dashboard-heading">📊 Admin Dashboard</h2>
+    <div>
+      <h2>Admin Dashboard</h2>
 
       <div className="admin-cards">
         <div className="admin-card">
@@ -145,25 +151,8 @@ function AdminDashboard() {
         </ResponsiveContainer>
       </div>
 
-      <div className="leaderboard-container">
+      <div className="leaderboard-section">
         <h3>🏆 Faculty Leaderboard</h3>
-
-        <div className="top-three-container">
-          {leaderboard.slice(0, 3).map((faculty, index) => (
-            <div className={`top-rank-card rank-${index + 1}`} key={index}>
-              <h4>
-                {index === 0 ? "🥇" : index === 1 ? "🥈" : "🥉"} Rank #{index + 1}
-              </h4>
-              <p>
-                <strong>{faculty.name}</strong>
-              </p>
-              <p>{faculty.department}</p>
-              <p>{faculty.avg_rating} ⭐</p>
-              <p>{faculty.total_reviews} reviews</p>
-            </div>
-          ))}
-        </div>
-
         <table className="leaderboard-table">
           <thead>
             <tr>
@@ -175,16 +164,10 @@ function AdminDashboard() {
             </tr>
           </thead>
           <tbody>
-            {leaderboard.map((faculty, index) => (
-              <tr key={index} className={index < 3 ? "highlight-row" : ""}>
+            {leaderboardData.map((faculty, index) => (
+              <tr key={index}>
                 <td>
-                  {index === 0
-                    ? "🥇"
-                    : index === 1
-                    ? "🥈"
-                    : index === 2
-                    ? "🥉"
-                    : `#${index + 1}`}
+                  {index === 0 ? "🥇" : index === 1 ? "🥈" : index === 2 ? "🥉" : `#${index + 1}`}
                 </td>
                 <td>{faculty.name}</td>
                 <td>{faculty.department}</td>

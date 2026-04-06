@@ -39,16 +39,16 @@ function App() {
 
       {!isLoggedIn ? (
         showLogin ? (
-          <div className={`card small-card ${theme}`}>
+          <div className={`card ${theme}`}>
             <Login setIsLoggedIn={setIsLoggedIn} setShowLogin={setShowLogin} />
           </div>
         ) : (
-          <div className={`card small-card ${theme}`}>
+          <div className={`card ${theme}`}>
             <Register setShowLogin={setShowLogin} />
           </div>
         )
       ) : (
-        <div className={`card large-card ${theme}`}>
+        <div className={`card ${theme}`}>
           <button
             className="logout-btn"
             onClick={() => {

@@ -1,8 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-const API_URL = process.env.REACT_APP_API_URL || "https://sscse-feedback-backend.onrender.com";
-
+const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
 
 function Login({ setIsLoggedIn, setShowLogin }) {
   const [email, setEmail] = useState("");
@@ -16,12 +15,14 @@ function Login({ setIsLoggedIn, setShowLogin }) {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: email,
-          password: password,
+          email,
+          password,
         }),
       });
 
       const data = await response.json();
+
+      console.log("LOGIN RESPONSE:", data);
 
       if (response.ok) {
         toast.success("Login successful");
@@ -29,10 +30,10 @@ function Login({ setIsLoggedIn, setShowLogin }) {
         localStorage.setItem("role", data.role);
         setIsLoggedIn(true);
       } else {
-        toast.error(data.message);
+        toast.error(data.message || "Login failed");
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Login Error:", error);
       toast.error("Something went wrong");
     }
   };
