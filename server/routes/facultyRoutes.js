@@ -132,7 +132,6 @@ router.get("/faculties/:id/feedback", verifyToken, (req, res) => {
       };
     });
 
-    console.log("Feedback with Sentiment:", feedbackWithSentiment);
     res.json({
       faculty: {
         name: results[0].name,

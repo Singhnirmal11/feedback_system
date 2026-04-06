@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const API_URL = process.env.REACT_APP_API_URL || "http://localhost:5001";
+const API_URL = process.env.REACT_APP_API_URL || "https://feedback-system-m94u.vercel.app";
 
 function AdminDashboard() {
   const [data, setData] = useState(null);

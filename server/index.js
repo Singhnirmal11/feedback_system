@@ -15,8 +15,7 @@ const app = express();
 const PORT = process.env.PORT || 5001;
 
 const allowedOrigins = [
-  "http://localhost:3000",
-  "https://feedback-system-sscse.vercel.app"
+  "http://localhost:3000"
 ];
 
 app.use(
