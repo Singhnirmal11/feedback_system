@@ -1,6 +1,4 @@
-if (process.env.NODE_ENV !== "production") {
-  require("dotenv").config();
-}
+require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
@@ -132,4 +130,3 @@ app.delete("/feedback/:id", verifyToken, (req, res) => {
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);  
 });
-//Port
