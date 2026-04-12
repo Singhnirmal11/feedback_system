@@ -2,7 +2,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 
 
-const API_URL = process.env.REACT_APP_API_URL || "https://feedback-system-m94u.vercel.app";
+const API_URL = process.env.REACT_APP_API_URL || "https://feedback-system-wheat.vercel.app";
 
 function Login({ setIsLoggedIn, setShowLogin }) {
   const [email, setEmail] = useState("");
